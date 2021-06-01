@@ -8,7 +8,7 @@ Notes:
 
 * The prime purpose is to study how the algorithm works, it is absolute not optimized enough for running with any real datasets.
 
-* Make sure you have __docopt__ available on your machine (just a Python packge which helps parsing CLI argument easily).
+* Make sure you have __docopt__ available on your machine (just a Python packge which helps parsing CLI arguments easily).
 
 ## How am I supposed execute it?
 
@@ -23,7 +23,7 @@ Options:
     --threshold     A utility threshold.
 ```
 
-There are three files under the data folder, those are how we provide the data to the program. You can update the folder name (e.g. data -> data-v1) but please do not change filenames insdie it.
+There are three files under the data folder, those are places where we feed data to the program. Feel free to update the folder name (e.g. data -> data-v1) but please do not change the filenames inside it.
 
 ## I want to see an example
 
@@ -54,6 +54,7 @@ $ ./ahus --data-folder data --threshold 10
 ['d', 'e', '0'] - 164
 ['d', '0', 'e', '0'] - 164
 ```
+Each line shows a pattern whose utility (at the end of each line) is higher than the provided threshold.
 
 ## Research papers
 
