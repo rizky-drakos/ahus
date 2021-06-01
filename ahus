@@ -1,0 +1,89 @@
+#!/usr/bin/python3
+''' 
+Mine HUSPs from the provided dataset given a threshold.
+
+Usage:
+    ahus -h | --help
+    ahus --data-folder PATH --threshold VALUE
+
+Options:
+    -h --help       Show this screen.
+    --data-folder   Either a relative or absolute path to a folder which
+                    contains three files: sequences.txt, utilities.txt and
+                    items.txt.
+    --threshold     A utility threshold.
+'''
+import utils
+
+from docopt import docopt
+from data_structures import AHUPattern
+
+threshold = 200
+
+husp = []
+
+def ahus(pattern, threshold, sdb, one_item_patterns):
+    # Remove low peu patterns.
+    if utils.compute_peu(pattern, sdb) < threshold:
+        return
+    else:
+        # Compute extension candidates.
+        i_extension_idx = utils.compute_iextension(pattern, sdb, one_item_patterns, threshold)
+        s_extension_idx = utils.compute_s_extension(pattern, sdb, one_item_patterns, threshold)
+                
+        i_extension_candidates = utils.get_extension_candidates(i_extension_idx, sdb)
+        s_extension_candidates = utils.get_extension_candidates(s_extension_idx, sdb)
+
+        for item in i_extension_candidates:
+            # Conduct the extension.
+            new_pattern = utils.i_extend(pattern, item)
+            # Compute the iulist for the new pattern.
+            new_pattern_iulist = utils.compute_iulist(new_pattern, pattern, i_extension_idx, sdb)
+            new_pattern.set_iulist(new_pattern_iulist)
+            # HUSP check.
+            new_pattern_asu = utils.asu(new_pattern)
+            if new_pattern_asu >= threshold:
+                print(f"{new_pattern.seq} - {new_pattern_asu}")
+                husp.append(new_pattern)
+            # Recursively call ahus to traverse the tree.
+            ahus(new_pattern, threshold, sdb, one_item_patterns)
+
+        for item in s_extension_candidates:
+            # Conduct the extension.
+            new_pattern = utils.s_extend(pattern, item)
+            # Compute the iulist for the new pattern.
+            new_pattern_iulist = utils.compute_iulist(new_pattern, pattern, i_extension_idx, sdb)
+            new_pattern.set_iulist(new_pattern_iulist)
+            # HUSP check.
+            new_pattern_asu = utils.asu(new_pattern)
+            if new_pattern_asu >= threshold:
+                print(f"{new_pattern.seq} - {new_pattern_asu}")
+                husp.append(new_pattern)
+            # Recursively call ahus to traverse the tree.
+            ahus(new_pattern, threshold, sdb, one_item_patterns)
+
+if __name__ == "__main__":
+    arguments = docopt(__doc__)
+    folder = arguments["PATH"]
+    threshold = int(arguments["VALUE"])
+    sdb, items = utils.read_data(folder+'/sequences.txt', folder+'/utilities.txt', folder+'/items.txt')
+
+    # Remove low swu patterns.
+    one_item_patterns = {item: AHUPattern([item, '0']) for item in items}
+    swu = utils.compute_swu(one_item_patterns, sdb)
+    for pattern in swu.keys():
+        if swu[pattern] < threshold:
+            del one_item_patterns[pattern]
+            for sequence in sdb:
+                if pattern in sequence.seq:
+                    pattern_idx = sequence.seq.index(pattern)
+                    sequence.seq = sequence.seq[:pattern_idx] + sequence.seq[(pattern_idx+1):]
+
+    # Compute iulist for all one-item patterns.
+    for pattern in one_item_patterns.keys():
+        pattern_iulist = utils.initialize_iulist(one_item_patterns[pattern], sdb)
+        one_item_patterns[pattern].set_iulist(pattern_iulist)
+
+    # Repeatedly call ahus to traverse down the tree.
+    for pattern in one_item_patterns.keys():
+        ahus(one_item_patterns[pattern], threshold, sdb, one_item_patterns)
