@@ -18,8 +18,6 @@ import utils
 from docopt import docopt
 from data_structures import AHUPattern
 
-threshold = 200
-
 husp = []
 
 def ahus(pattern, threshold, sdb, one_item_patterns):
