@@ -10,7 +10,7 @@ Notes:
 
 * Make sure you have __docopt__ available on your machine (just a Python packge which helps parsing CLI arguments easily).
 
-## How am I supposed execute it?
+## How am I supposed to execute it?
 
 ```text
 Usage:
