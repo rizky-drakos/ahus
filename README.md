@@ -6,7 +6,7 @@ This project is a prototype implementation of the AHUS algorithm for mining high
 
 Notes:
 
-* The prime purpose is to study how the algorithm works, it is absolute not optimized enough for running with any real datasets.
+* The prime purpose is to study how the algorithm works, it is absolutely not optimized enough for running with any real datasets.
 
 * Make sure you have __docopt__ available on your machine (just a Python packge which helps parsing CLI arguments easily).
 
