@@ -21,6 +21,7 @@ from data_structures import AHUPattern
 husp = []
 
 def ahus(pattern, threshold, sdb, one_item_patterns):
+
     # Remove low peu patterns.
     if utils.compute_peu(pattern, sdb) < threshold:
         return
@@ -50,7 +51,7 @@ def ahus(pattern, threshold, sdb, one_item_patterns):
             # Conduct the extension.
             new_pattern = utils.s_extend(pattern, item)
             # Compute the iulist for the new pattern.
-            new_pattern_iulist = utils.compute_iulist(new_pattern, pattern, i_extension_idx, sdb)
+            new_pattern_iulist = utils.compute_iulist(new_pattern, pattern, s_extension_idx, sdb)
             new_pattern.set_iulist(new_pattern_iulist)
             # HUSP check.
             new_pattern_asu = utils.asu(new_pattern)
