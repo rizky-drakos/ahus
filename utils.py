@@ -12,13 +12,14 @@ def compute_iextension(pattern, sdb, one_item_patterns, threshold):
         for idx in ilist:
             itemset_ending_idx = sdb[sid].seq.index(SEPARATOR, idx)
             iextension_candidates = list(range((idx+1), itemset_ending_idx))
+            # print(f"{sdb[sid].seq}-{pattern.seq}-{iextension_candidates}")
             for candidate in iextension_candidates:
                 # Organizing the dictionary this way helps to quicky
                 # answer what the extension position is given the extension
                 # item's position.
-                euu_value = euu(pattern, sdb[sid].seq[candidate], sdb, one_item_patterns)
-                if euu_value > threshold:
-                    iextension_in_sequence[candidate] = idx
+                # euu_value = euu(pattern, sdb[sid].seq[candidate], sdb, one_item_patterns)
+                # if euu_value > threshold:
+                iextension_in_sequence[candidate] = idx
         iextension_idx[sid] = iextension_in_sequence
     return iextension_idx
 
@@ -42,9 +43,9 @@ def compute_s_extension(pattern, sdb, one_item_patterns, threshold):
                     idx for idx in pattern.iulist[sid][ILIST_KEY] 
                     if idx < backwards_itemset_separator_idx
                 ]
-                euu_value = euu(pattern, item, sdb, one_item_patterns)
-                if euu_value > threshold:
-                    s_extension[sid][idx] = extension_idx
+                # euu_value = euu(pattern, item, sdb, one_item_patterns)
+                # if euu_value > threshold:
+                s_extension[sid][idx] = extension_idx
     return s_extension
 
 def i_extend(pattern, extension_item):
@@ -117,11 +118,14 @@ def compute_iulist(pattern, prefix, candidates, sdb):
     return iulist
 
 def get_extension_candidates(extension_idx, sdb):
-    extension_candidates = []
+    extension_candidates = {}
     for sid in extension_idx.keys():
         for item in [sdb[sid].seq[i] for i in extension_idx[sid].keys()]:
             if item not in extension_candidates:
-                extension_candidates.append(item)
+                extension_candidates[item] = [sid]
+            else:
+                extension_candidates[item].append(sid)
+
     return extension_candidates
 
 def compute_swu(patterns, sdb):
@@ -143,12 +147,12 @@ def compute_peu(pattern, sdb):
         peu += max(peu_in_sequence)
     return peu
 
-def rsu(pattern, sdb):
-    return compute_peu(pattern, sdb)
+# def rsu(pattern, item):
+    
 
-def euu(pattern, candidate, sdb, one_item_patterns):
-    candidate_pattern = one_item_patterns[candidate]
-    return asu(pattern) + compute_peu(candidate_pattern, sdb)
+# def euu(pattern, candidate, sdb, one_item_patterns):
+#     candidate_pattern = one_item_patterns[candidate]
+#     return asu(pattern) + compute_peu(candidate_pattern, sdb)
 
 def asu(pattern):
     asu = 0

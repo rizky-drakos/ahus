@@ -18,6 +18,7 @@ import utils
 from docopt import docopt
 from data_structures import AHUPattern
 
+c = 0
 husp = []
 
 def ahus(pattern, threshold, sdb, one_item_patterns):
@@ -33,7 +34,39 @@ def ahus(pattern, threshold, sdb, one_item_patterns):
         i_extension_candidates = utils.get_extension_candidates(i_extension_idx, sdb)
         s_extension_candidates = utils.get_extension_candidates(s_extension_idx, sdb)
 
-        for item in i_extension_candidates:
+        # rsu pruning.
+        items_for_deletion = []
+        for item in i_extension_candidates.keys():
+            rsu = 0
+            for sid in i_extension_candidates[item]:
+                peu_in_sequence = []
+                for idx, idx_of_util in enumerate(pattern.iulist[sid]['ilist']):
+                    peu_in_sequence.append(sdb[sid].rlist[idx_of_util] + pattern.iulist[sid]['ulist'][idx])
+                rsu += max(peu_in_sequence)
+            if rsu < threshold:
+                items_for_deletion.append(item)
+
+        for item in items_for_deletion:
+            del i_extension_candidates[item]
+
+        items_for_deletion = []
+        for item in s_extension_candidates.keys():
+            rsu = 0
+            for sid in s_extension_candidates[item]:
+                peu_in_sequence = []
+                for idx, idx_of_util in enumerate(pattern.iulist[sid]['ilist']):
+                    peu_in_sequence.append(sdb[sid].rlist[idx_of_util] + pattern.iulist[sid]['ulist'][idx])
+                rsu += max(peu_in_sequence)
+            if rsu < threshold:
+                items_for_deletion.append(item)
+
+        for item in items_for_deletion:
+            del s_extension_candidates[item]
+
+        # print(f"Extension candidates: {pattern.seq}-{len(i_extension_candidates) + len(s_extension_candidates)}")
+
+        # Traverse the tree.
+        for item in i_extension_candidates.keys():
             # Conduct the extension.
             new_pattern = utils.i_extend(pattern, item)
             # Compute the iulist for the new pattern.
@@ -47,7 +80,7 @@ def ahus(pattern, threshold, sdb, one_item_patterns):
             # Recursively call ahus to traverse the tree.
             ahus(new_pattern, threshold, sdb, one_item_patterns)
 
-        for item in s_extension_candidates:
+        for item in s_extension_candidates.keys():
             # Conduct the extension.
             new_pattern = utils.s_extend(pattern, item)
             # Compute the iulist for the new pattern.
